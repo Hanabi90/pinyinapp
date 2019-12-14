@@ -4,9 +4,11 @@ const request = require('request')
 const app = new Koa();
 const baike = require('baidu-baike')
 var cors = require('koa2-cors');
+const cheerio = require("cheerio")
+var iconv = require('iconv-lite');
 app.use(cors());
 app.use(async(ctx,next)=>{
-    ctx.set('Access-Control-Allow-Origin', 'https://hanabi90.github.io/haolovesarah/');
+    ctx.set('Access-Control-Allow-Origin', 'https://hanabi90.github.io/');
     ctx.set('Access-Control-Allow-Origin', '*');
     ctx.set('Access-Control-Allow-Headers', '*');
     ctx.set('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
@@ -29,12 +31,41 @@ app.use(async(ctx,next)=>{
        let result = parseQueryStr(postData)
        var requestData=result
        console.log(JSON.parse(postData).text)
-        ctx.body = await requesPost({"text":JSON.parse(postData).text})
+       ctx.body = await requesPost({"text":JSON.parse(postData).text})
+    }else if(ctx.url === '/book' && ctx.method === 'POST'){
+        let postData = await parsePostData(ctx);
+        let result = parseQueryStr(postData)
+        // getData(JSON.parse(postData).url)
+        ctx.body = await getData(JSON.parse(postData).url)
+    }else if(ctx.url === '/nextpage' && ctx.method === 'POST'){
+        // ('#pb_next').href
     }else{
         ctx.body = '<h1>404!</h1>'
     }
 });
-
+function getData(url){
+    return new Promise((resolve, reject)=>{
+        var option ={
+            url: url,
+            encoding:null,
+            method: "POST",   //指定请求方法类型：GET, POST
+            timeout: 30000,  // 设置请求超时，单位是毫秒  
+        }
+        request(option, function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                var strJson = iconv.decode(body,"GBK"); //进行gbk解码
+                var $ = cheerio.load(strJson,{decodeEntities: false}); //解决Unicode 编码
+                let data = $('#nr1').html()
+                let nextUrl = "https://m.wanjie8.com"+$('#pb_next').attr('href')
+                data = data.replace(/<br\s*\/?>/gi,"")
+                result = {text:data,nextUrl}
+                resolve(result)   // 返回response的内容
+            }else{
+                reject(error);   // 返回错误信息
+            }
+        });
+    });
+};
 function requesPost(requestData){
     return new Promise((resolve, reject)=>{
         var url = "https://aip.baidubce.com/rpc/2.0/nlp/v1/lexer?charset=UTF-8&access_token=24.b277fbcd3b5e17d6ecad50d687b21d3d.2592000.1578838446.282335-18017265";
@@ -58,10 +89,10 @@ function requesPost(requestData){
     });
 };
 // const baike = require('baidu-baike')
-const query = '美女'
-baike(query)
-  .then(res => console.log(JSON.stringify(res)))
-  .catch(err => console.error(err))
+// const query = '美女'
+// baike(query)
+//   .then(res => console.log(JSON.stringify(res)))
+//   .catch(err => console.error(err))
 function parsePostData(ctx){
     return  new Promise((resolve,reject)=>{
         try {

@@ -28,7 +28,7 @@ spec:
         deployedBy: deploy-node-app
     spec:
       containers:
-        - image: 'sid2020/koa2:ab4fe5e'
+        - image: 'sid2020/koa2:ef10647-1576339954'
           imagePullPolicy: Always
           name: koa2
           env:
