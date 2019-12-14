@@ -8,6 +8,7 @@
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
+    "koa2-cors": "^2.0.6",
     "request": "^2.88.0"
   },
   "devDependencies": {},
@@ -15,5 +16,17 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "deploy-node-app": {
+    "prod": {
+      "entrypoint": "app copy.js",
+      "context": "kubesail-hanabi90",
+      "registry": "index.docker.io/v1/",
+      "type": "server",
+      "port": 3000,
+      "protocol": "http",
+      "registryUsername": "sid2020",
+      "isPublic": false
+    }
+  }
 }

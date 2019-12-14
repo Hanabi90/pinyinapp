@@ -3,6 +3,8 @@ const Koa = require('koa');
 const request = require('request')
 const app = new Koa();
 const baike = require('baidu-baike')
+var cors = require('koa2-cors');
+app.use(cors());
 app.use(async(ctx,next)=>{
     ctx.set('Access-Control-Allow-Origin', '*');
     ctx.set('Access-Control-Allow-Headers', '*');
